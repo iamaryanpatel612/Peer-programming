@@ -1,1 +1,81 @@
+function Test-WDAC {
+    param (
+        [string]$appName = "C:\Program Files (x86)\Recover Keys\RecoverKeys.exe"
+    )
 
+    try {
+        Start-Process -FilePath $appName -ErrorAction Stop
+        Start-Sleep -Seconds 5
+
+        $processName = (Get-Item $appName).BaseName
+        $isRunning = Get-Process -Name $processName -ErrorAction SilentlyContinue
+
+        if ($isRunning) {
+            Write-Host "$processName is running."
+        } else {
+            Write-Host "$processName is not running."
+        }
+    }
+    catch {
+        Write-Host "Failed to run $($appName): $_"
+    }
+}
+
+function Setup-WDAC {
+    param (
+        [string]$PolicyPath = "C:\Users\Vagrant\test.xml",
+        [string]$OutputCIPFile = "C:\Users\Vagrant\test.cip"
+    )
+
+    try {
+        ConvertFrom-CIPolicy -XmlFilePath $PolicyPath -BinaryFilePath $OutputCIPFile -ErrorAction Stop
+        Write-Host "WDAC policy successfully compiled to $OutputCIPFile"
+    }
+    catch {
+        Write-Host "Failed to compile WDAC policy: $_"
+    }
+}
+
+function Enable-WDAC {
+    param (
+        [string]$CIPFilePath = "C:\Users\Vagrant\RecoveryKeys.cip"
+    )
+
+    try {
+        # Assuming citool.exe is available in PATH or provide the full path
+        & citool.exe -SomeOptionToApply $CIPFilePath
+        Write-Host "WDAC policy applied successfully using citool.exe."
+    }
+    catch {
+        Write-Host "Failed to apply WDAC policy using citool.exe: $_"
+    }
+}
+
+function Reset-WDAC {
+    try {
+        # Assuming citool.exe is available in PATH or provide the full path
+        & citool.exe -SomeOptionToReset
+        Write-Host "WDAC policy reset successfully using citool.exe."
+    }
+    catch {
+        Write-Host "Failed to reset WDAC policy using citool.exe: $_"
+    }
+}
+
+switch ($args[0]) {
+    "testWDAC" {
+        Test-WDAC
+    }
+    "setupWDAC" {
+        Setup-WDAC
+    }
+    "enableWDAC" {
+        Enable-WDAC
+    }
+    "resetWDAC" {
+        Reset-WDAC
+    }
+    default {
+        Write-Host "Invalid command line argument. Usage: defend.ps1 <testWDAC/setupWDAC/enableWDAC/resetWDAC>"
+    }
+}
