@@ -1,0 +1,17 @@
+Wireshark Test Summary:
+
+Test 1: Client uploads encrypted CSV file to Flask server
+- Protocol: HTTP POST
+- Captured traffic on port 8080
+- File: sample.csv.enc
+- File seen in POST payload
+
+Test 2: Apache HTTPS browsing (secure.conf)
+- TLS 1.3 used with strong ciphers
+- Valid certificate presented
+- No deprecated algorithms
+
+Test 3: Apache HTTPS browsing (insecure.conf)
+- TLS 1.0 used
+- Weak cipher suite enabled (e.g., RC4)
+- Certificate is self-signed
